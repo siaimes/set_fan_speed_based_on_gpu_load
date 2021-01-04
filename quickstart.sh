@@ -23,22 +23,23 @@ fi
 
 NAME=siaimes
 REPO=set_fan_speed_based_on_gpu_load
-DOWNLOADURL="https://raw.githubusercontent.com/$NAME/$REPO/main/set_fan_speed_based_on_gpu_load.sh"
+DOWNLOADURL="https://github.com/$NAME/$REPO.git"
 TMPDIR="$(mktemp -d)"
 INSTALLPREFIX=/usr/local
 SYSTEMDPREFIX=/etc/systemd/system
 
-BINARYPATH="$INSTALLPREFIX/bin/$REPO"
+BINARYPATH="$INSTALLPREFIX/bin/$REPO.sh"
 SYSTEMDPATH="$SYSTEMDPREFIX/$REPO.service"
 
 echo Entering temp directory $TMPDIR...
 cd "$TMPDIR"
 
-echo Downloading $REPO ...
-curl -LO --progress-bar "$DOWNLOADURL" || wget -q --show-progress "$DOWNLOADURL"
+git clone "$DOWNLOADURL"
+
+cd "${REPO}"
 
 echo Installing $REPO to $BINARYPATH...
-install -Dm755 "$REPO" "$BINARYPATH"
+install -Dm755 "$REPO.sh" "$BINARYPATH"
 
 if [[ -d "$SYSTEMDPREFIX" ]]; then
     echo Installing $REPO systemd service to $SYSTEMDPATH...
@@ -49,7 +50,7 @@ Description=$REPO Service
 
 [Service]
 Type=simple
-User=nobody
+User=root
 Restart=on-failure
 RestartSec=5s
 ExecStart="$BINARYPATH"
